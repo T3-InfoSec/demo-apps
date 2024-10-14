@@ -30,7 +30,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
   List<String> words = [];
   int currentPage = 0;
 
-  bool isShowHighlight = true;
+  bool higlight = true;
 
   String selectedIndexationCombination = '';
   String possibleCombination = '';
@@ -96,7 +96,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
         _reset();
         return;
       }
-      if (isShowHighlight) {
+      if (higlight) {
         Future.delayed(const Duration(seconds: 2), () {
           widget.onWordSelected(true, word);
         });
@@ -188,11 +188,11 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
   @override
   void initState() {
     super.initState();
-    _startListeningForVolumeTap();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    _startListeningForVolumeTap();
     _startUp();
   }
 
@@ -214,16 +214,16 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
           GestureDetector(
             onTap: () {
               setState(() {
-                isShowHighlight = !isShowHighlight;
+                higlight = !higlight;
               });
             },
             child: Row(
               children: [
-                Text('${isShowHighlight ? 'Hide' : 'Show'} Highlight'),
+                const Text('Highlight:'),
                 Checkbox.adaptive(
-                  value: isShowHighlight,
+                  value: higlight,
                   onChanged: (v) {
-                    isShowHighlight = v ?? false;
+                    higlight = v ?? false;
                     setState(() {});
                   },
                 ),
@@ -237,7 +237,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
           wordSource: words,
           colIndexes: colIndexes,
           rowIndexes: rowIndexes,
-          showHighlight: isShowHighlight,
+          showHighlight: higlight,
           selectedIndexationCombination: selectedIndexationCombination,
         ),
       ),
