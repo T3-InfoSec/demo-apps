@@ -1,0 +1,5 @@
+lnd-grpc-client==0.5.3
+protobuf
+protobuf_to_dict
+gmpy2
+psutil
