@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "anti-side-attack",
+            "cwd": "apps/anti-side-attack",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "anti-side-attack (profile mode)",
+            "cwd": "apps/anti-side-attack",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "anti-side-attack (release mode)",
+            "cwd": "apps/anti-side-attack",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

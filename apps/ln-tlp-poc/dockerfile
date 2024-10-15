@@ -1,0 +1,86 @@
+# Start with the official ARM Ubuntu image
+FROM ubuntu:20.04
+
+# Set environment variables
+ENV GOPATH=/root/go
+ENV PATH=$PATH:$GOPATH/bin
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install necessary packages
+RUN apt-get update && apt-get install -y \   
+    tmux \
+    software-properties-common \
+    curl \
+    git \
+    build-essential \
+    python3.8 \
+    python3-pip \
+    python3.8-dev \
+    libgmp-dev \
+    libmpfr-dev \
+    libmpc-dev \
+    libssl-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    pkg-config \
+    libsqlite3-dev \
+    libbz2-dev \
+    libreadline-dev \
+    liblz4-dev \
+    libsnappy-dev \
+    wget \
+    tzdata && \    
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Go 1.23.2 for ARM
+RUN wget https://golang.org/dl/go1.23.2.linux-arm64.tar.gz && \
+    tar -C /usr/local -xzf go1.23.2.linux-arm64.tar.gz && \
+    rm go1.23.2.linux-arm64.tar.gz
+
+# Set the Go binary path in the PATH environment variable
+ENV PATH=$PATH:/usr/local/go/bin
+
+# Install LND
+# Clone the LND repository and build it
+RUN mkdir -p $GOPATH/src/github.com/lightningnetwork && \
+    git clone https://github.com/lightningnetwork/lnd.git $GOPATH/src/github.com/lightningnetwork/lnd && \
+    cd $GOPATH/src/github.com/lightningnetwork/lnd && \
+    make && make install
+
+# Install BTCD
+# Clone the BTCD repository and build it
+RUN git clone https://github.com/btcsuite/btcd $GOPATH/src/github.com/btcsuite/btcd && \
+    cd $GOPATH/src/github.com/btcsuite/btcd && \
+    go install . ./cmd/...
+
+# Install Python dependencies
+RUN pip3 install \
+    lnd-grpc-client==0.5.3 \
+    psutil\
+    protobuf \
+    grpcio-tools && \
+    pip3 install gmpy2==2.1.0 --no-binary :all: && \
+    pip3 install \
+    protobuf_to_dict \
+    python-dotenv
+
+# Copy Alice and Bob apps
+COPY alice/ /app/alice/
+COPY bob/ /app/bob/
+COPY startup.py /app/
+COPY copy.lnd.conf /app/
+
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Expose ports (modify as needed for your app)
+EXPOSE 8080 9735 10001 50051 10002
+
+# Run the Python script to generate lnd.conf and keep container running
+CMD ["sh", "-c", "python3 startup.py && python3 alice/setup.py && python3 bob/setup.py && \
+     tmux new-session -d -s mysession 'python3 /app/bob/app.py' && \
+     sleep 2 && python3 /app/alice/app.py"]
+
+
